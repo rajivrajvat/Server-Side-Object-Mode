@@ -1,0 +1,438 @@
+using Microsoft.SharePoint;
+using System;
+
+namespace ssomShukla
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // _GetSiteProp();
+            // _SetSiteProp();
+            // _GetListProp();
+            // _DeleteItemList();
+            //CreateList();
+            //GetListItem();
+            //CreateListItem();
+            //UpdateListItem();
+            // _GetFields();
+            // _AddField();
+            FilterListItem();
+
+
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
+        }
+        static string _Url = "http://rajiv/sites/MU";
+
+        static void _GetSiteProp()
+        {
+            SPSite _Site = new SPSite(_Url);
+            SPWeb _Web = _Site.OpenWeb();
+            Console.WriteLine(_Web.Title);
+            _Web.Dispose();
+            _Site.Dispose();
+        }
+        static void _SetSiteProp()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.Title = "Shukla";
+                    _Web.Update();
+                }
+            }
+        }
+        static void _GetListProp()
+        {
+
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPListCollection _Lists = _Web.Lists;
+                    foreach (SPList _List in _Lists)
+                        if (!_List.Hidden)
+                        {
+                            Console.WriteLine(_List.Title);
+                        }
+                }
+            }
+        }
+        static void CreateList()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.AllowUnsafeUpdates = true;
+                    _Web.Lists.Add("News", "Description", SPListTemplateType.Announcements);
+                    _Web.Update();
+                    _Web.AllowUnsafeUpdates = false;
+
+
+
+                }
+            }
+        }
+        static void GetListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItemCollection _items = _Lists.GetItems();
+                    foreach (SPListItem _Item in _items)
+                    {
+                        Console.WriteLine(_Item.ID + "-" + Convert.ToString(_Item["Title"]) + "-" + Convert.ToString(_Item["About"]));
+                    }
+                }
+            }
+        }
+        static void CreateListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItem _Item = _Lists.AddItem();
+                    _Item["Title"] = "Book";
+                    _Item["Title"] = "writtoMeter";
+                    _Item["Title"] = "Laptop";
+                    _Item["Title"] = "Keyboard";
+                    _Item["Title"] = "NoteBook";
+
+
+                    _Item.Update();
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        static void _DeleteItemList()
+        {
+
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItemCollection _items = _Lists.GetItems();
+                    SPListItem _Item = _Lists.GetItemById(2);
+                    _Item["Title"] = "Jaagte Raho";
+                    _Item.Delete();
+
+                }
+            }
+        }
+        static void UpdateListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.AllowUnsafeUpdates = true;
+                    SPList _List = _Web.Lists["News"];
+                    //SPListItem _Item = _List.AddItem();
+                    SPListItem _Item = _List.GetItemById(3);
+                    // _Item["Title"] = "EMP007";
+                    _Item["Title"] = 25;
+                    _Item.Update();
+                    //  _Item.SystemUpdate(false);
+                    _Web.AllowUnsafeUpdates = false;
+                    Console.WriteLine("Updated");
+                }
+            }
+        }
+
+        static void _GetFields()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    SPFieldCollection _Fields = _List.Fields;
+                    foreach (SPField _Field in _Fields)
+                    {
+                        Console.WriteLine(_Field);
+                        //Console.WriteLine(_Field.TitleResource);
+                    }
+                }
+            }
+        }
+        static void _AddField()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    _List.Fields.Add("WorkPhone", SPFieldType.Text, true);
+                }
+            }
+        }
+
+        static void FilterListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    SPQuery _Query = new SPQuery();
+                    _Query.Query = @" <Where>
+                                      <Eq>
+                                          <FieldRef Name='Title' />
+                                           <Value Type='Text'>lazy day</Value>
+                                      </Eq>
+                                   </Where>";
+                    _Query.RowLimit =100;
+
+                    _Query.ViewFields = " <FieldRef Name='Title' /> <FieldRef Name='ID' />";
+                    SPListItemCollection _Items = _List.GetItems(_Query);
+                   // SPListItemCollection _Items = _List.GetItems();
+                    System.Data.DataTable _Table = _List.GetItems(_Query).GetDataTable();
+                    foreach (SPListItem _Item in _Items)
+                    {
+                        Console.WriteLine(_Item.ID + " - " + Convert.ToString(_Item["Title"]));
+                    }
+                }
+            }
+        }
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using Microsoft.SharePoint;
+using System;
+
+namespace ssom._2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // _GetSiteProp();
+            // _SetSiteProp();
+            // _GetListProp();
+            // _DeleteItemList();
+            //CreateList();
+            //GetListItem();
+            //CreateListItem();
+            //UpdateListItem();
+            // _GetFields();
+            // _AddField();
+            FilterListItem();
+
+
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
+        }
+        static string _Url = "http://administrator:2014/sites/abc";
+
+        static void _GetSiteProp()
+        {
+            SPSite _Site = new SPSite(_Url);
+            SPWeb _Web = _Site.OpenWeb();
+            Console.WriteLine(_Web.Title);
+            _Web.Dispose();
+            _Site.Dispose();
+        }
+        static void _SetSiteProp()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.Title = "saurabh";
+                    _Web.Update();
+                }
+            }
+        }
+        static void _GetListProp()
+        {
+
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPListCollection _Lists = _Web.Lists;
+                    foreach (SPList _List in _Lists)
+                        if (!_List.Hidden)
+                        {
+                            Console.WriteLine(_List.Title);
+                        }
+                }
+            }
+        }
+        static void CreateList()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.AllowUnsafeUpdates = true;
+                    _Web.Lists.Add("News", "Description", SPListTemplateType.Announcements);
+                    _Web.Update();
+                    _Web.AllowUnsafeUpdates = false;
+
+
+
+                }
+            }
+        }
+        static void GetListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItemCollection _items = _Lists.GetItems();
+                    foreach (SPListItem _Item in _items)
+                    {
+                        Console.WriteLine(_Item.ID + "-" + Convert.ToString(_Item["Title"]) + "-" + Convert.ToString(_Item["About"]));
+                    }
+                }
+            }
+        }
+        static void CreateListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItem _Item = _Lists.AddItem();
+                    _Item["Title"] = "Jaagte Raho";
+                    _Item["Title"] = "Don't Sleep.";
+                    _Item["Title"] = "today rakshabandhans";
+                    _Item["Title"] = "lazy day";
+                    _Item["Title"] = "Tommarrow independenceday";
+
+
+                    _Item.Update();
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        static void _DeleteItemList()
+        {
+
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+
+                    SPList _Lists = _Web.Lists["News"];
+                    SPListItemCollection _items = _Lists.GetItems();
+                    SPListItem _Item = _Lists.GetItemById(2);
+                    _Item["Title"] = "Jaagte Raho";
+                    _Item.Delete();
+
+                }
+            }
+        }
+        static void UpdateListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    _Web.AllowUnsafeUpdates = true;
+                    SPList _List = _Web.Lists["News"];
+                    //SPListItem _Item = _List.AddItem();
+                    SPListItem _Item = _List.GetItemById(3);
+                    // _Item["Title"] = "EMP007";
+                    _Item["Title"] = 25;
+                    _Item.Update();
+                    //  _Item.SystemUpdate(false);
+                    _Web.AllowUnsafeUpdates = false;
+                    Console.WriteLine("Updated");
+                }
+            }
+        }
+
+        static void _GetFields()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    SPFieldCollection _Fields = _List.Fields;
+                    foreach (SPField _Field in _Fields)
+                    {
+                        Console.WriteLine(_Field);
+                        //Console.WriteLine(_Field.TitleResource);
+                    }
+                }
+            }
+        }
+        static void _AddField()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    _List.Fields.Add("WorkPhone", SPFieldType.Text, true);
+                }
+            }
+        }
+
+        static void FilterListItem()
+        {
+            using (SPSite _Site = new SPSite(_Url))
+            {
+                using (SPWeb _Web = _Site.OpenWeb())
+                {
+                    SPList _List = _Web.Lists["News"];
+                    SPQuery _Query = new SPQuery();
+                    _Query.Query = @" <Where>
+                                      <Eq>
+                                          <FieldRef Name='Title' />
+                                           <Value Type='Text'>lazy day</Value>
+                                      </Eq>
+                                   </Where>";
+                    _Query.RowLimit =100;
+
+                    _Query.ViewFields = " <FieldRef Name='Title' /> <FieldRef Name='ID' />";
+                    SPListItemCollection _Items = _List.GetItems(_Query);
+                   // SPListItemCollection _Items = _List.GetItems();
+                    System.Data.DataTable _Table = _List.GetItems(_Query).GetDataTable();
+                    foreach (SPListItem _Item in _Items)
+                    {
+                        Console.WriteLine(_Item.ID + " - " + Convert.ToString(_Item["Title"]));
+                    }
+                }
+            }
+        }
+
+    }
+
+}
